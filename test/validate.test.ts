@@ -7,17 +7,17 @@ import {
 
 describe("isBlogArticleUrl", () => {
   it("accepts blog.agentailor.com URLs", () => {
-    expect(
-      isBlogArticleUrl("https://blog.agentailor.com/posts/x.md")
-    ).toBe(true);
+    expect(isBlogArticleUrl("https://blog.agentailor.com/posts/x.md")).toBe(
+      true
+    );
   });
 
   it("rejects other origins", () => {
     expect(isBlogArticleUrl("https://evil.example.com/x.md")).toBe(false);
     expect(isBlogArticleUrl("https://agentailor.com/x.md")).toBe(false);
-    expect(
-      isBlogArticleUrl("https://blog.agentailor.com.evil.com/x.md")
-    ).toBe(false);
+    expect(isBlogArticleUrl("https://blog.agentailor.com.evil.com/x.md")).toBe(
+      false
+    );
   });
 });
 

@@ -1,6 +1,10 @@
 import { FastMCP, UserError } from "fastmcp";
 import { z } from "zod";
-import { BLOG_BASE_URL, BLOG_INDEX_URL, SEARCH_LIMIT_DEFAULT } from "../config.js";
+import {
+  BLOG_BASE_URL,
+  BLOG_INDEX_URL,
+  SEARCH_LIMIT_DEFAULT,
+} from "../config.js";
 import { getPosts, searchPosts } from "../content.js";
 import { formatSearchResults } from "../format.js";
 import { fetchTextCached, NotFoundError } from "../http.js";

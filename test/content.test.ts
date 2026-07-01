@@ -4,7 +4,10 @@ import { describe, expect, it } from "vitest";
 import { type Post, searchPosts } from "../src/content.js";
 
 const fixture = JSON.parse(
-  readFileSync(fileURLToPath(new URL("./fixtures/llms.json", import.meta.url)), "utf8")
+  readFileSync(
+    fileURLToPath(new URL("./fixtures/llms.json", import.meta.url)),
+    "utf8"
+  )
 ) as { posts: Post[] };
 const posts = fixture.posts;
 
@@ -15,7 +18,9 @@ describe("searchPosts", () => {
 
   it("matches a free-text query against title, summary, and tags", () => {
     const bySummary = searchPosts(posts, { query: "principles" });
-    expect(bySummary.map((p) => p.slug)).toEqual(["writing-tools-for-ai-agents"]);
+    expect(bySummary.map((p) => p.slug)).toEqual([
+      "writing-tools-for-ai-agents",
+    ]);
 
     const byTitle = searchPosts(posts, { query: "roadmap" });
     expect(byTitle.map((p) => p.slug)).toContain("agent-development-roadmap");
@@ -47,8 +52,13 @@ describe("searchPosts", () => {
   it("combines query, tags, and guidesOnly (all narrow together)", () => {
     // "MCP" tag + guidesOnly matches both MCP guides...
     expect(
-      searchPosts(posts, { tags: ["MCP"], guidesOnly: true }).map((p) => p.slug).sort()
-    ).toEqual(["agent-development-roadmap", "mcp-typescript-sdk-complete-guide"]);
+      searchPosts(posts, { tags: ["MCP"], guidesOnly: true })
+        .map((p) => p.slug)
+        .sort()
+    ).toEqual([
+      "agent-development-roadmap",
+      "mcp-typescript-sdk-complete-guide",
+    ]);
 
     // ...adding a query term unique to one of them isolates it.
     const res = searchPosts(posts, {
@@ -56,7 +66,9 @@ describe("searchPosts", () => {
       tags: ["MCP"],
       guidesOnly: true,
     });
-    expect(res.map((p) => p.slug)).toEqual(["mcp-typescript-sdk-complete-guide"]);
+    expect(res.map((p) => p.slug)).toEqual([
+      "mcp-typescript-sdk-complete-guide",
+    ]);
   });
 
   it("returns nothing when filters exclude everything", () => {
