@@ -1,0 +1,50 @@
+{
+  "generatedAt": "2026-07-01T00:00:00.000Z",
+  "posts": [
+    {
+      "title": "Agent Development Roadmap",
+      "slug": "agent-development-roadmap",
+      "url": "https://blog.agentailor.com/posts/agent-development-roadmap.md",
+      "date": "2026-04-08",
+      "tags": ["AI Agents", "Roadmap", "MCP"],
+      "guide": true,
+      "summary": "A staged path from fundamentals to production for building AI agents."
+    },
+    {
+      "title": "MCP TypeScript SDK Complete Guide",
+      "slug": "mcp-typescript-sdk-complete-guide",
+      "url": "https://blog.agentailor.com/posts/mcp-typescript-sdk-complete-guide.md",
+      "date": "2026-03-18",
+      "tags": ["MCP", "MCP Server", "Tools"],
+      "guide": true,
+      "summary": "Everything in the MCP TypeScript SDK, end to end."
+    },
+    {
+      "title": "Writing Effective Tools for AI Agents",
+      "slug": "writing-tools-for-ai-agents",
+      "url": "https://blog.agentailor.com/posts/writing-tools-for-ai-agents.md",
+      "date": "2025-12-09",
+      "tags": ["AI Agents", "Tools", "MCP"],
+      "guide": false,
+      "summary": "Five production-tested principles for designing tools agents can actually use."
+    },
+    {
+      "title": "LangGraph vs LlamaIndex (JavaScript)",
+      "slug": "langgraph-vs-llamaindex-javascript",
+      "url": "https://blog.agentailor.com/posts/langgraph-vs-llamaindex-javascript.md",
+      "date": "2026-02-01",
+      "tags": ["LangGraph", "LlamaIndex"],
+      "guide": false,
+      "summary": "A practical comparison of two JS agent frameworks and when to pick each."
+    },
+    {
+      "title": "Message History Summarization Strategies",
+      "slug": "message-history-summarization-strategies",
+      "url": "https://blog.agentailor.com/posts/message-history-summarization-strategies.md",
+      "date": "2026-01-15",
+      "tags": ["Memory", "Context Engineering"],
+      "guide": false,
+      "summary": "How to keep agent context small without losing the thread."
+    }
+  ]
+}
