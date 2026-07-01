@@ -116,3 +116,7 @@ pnpm inspect:stdio # list tools over stdio
 - [Writing Effective Tools for AI Agents](https://blog.agentailor.com/posts/writing-tools-for-ai-agents) — the design playbook this server follows
 - [`@agentailor/create-mcp-server`](https://github.com/agentailor/create-mcp-server) — the scaffolder
 - [FastMCP](https://github.com/punkpeye/fastmcp) · [Model Context Protocol](https://modelcontextprotocol.io/)
+
+## License
+
+[Apache 2.0](LICENSE) © Agentailor
