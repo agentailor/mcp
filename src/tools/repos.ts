@@ -2,7 +2,7 @@ import { FastMCP, UserError } from "fastmcp";
 import { z } from "zod";
 import { GITHUB_ORG } from "../config.js";
 import {
-  fetchTextCached,
+  fetchText,
   githubHeaders,
   NotFoundError,
   RateLimitError,
@@ -37,7 +37,7 @@ export function registerRepoTools(server: FastMCP): void {
     }),
     execute: async ({ response_format }) => {
       const raw = await withRateLimitHint(() =>
-        fetchTextCached(
+        fetchText(
           `https://api.github.com/orgs/${GITHUB_ORG}/repos?type=public&per_page=100&sort=updated`,
           { headers: githubHeaders() }
         )
@@ -95,7 +95,7 @@ Only README.md and docs/*.md paths are allowed.`,
       const url = `https://raw.githubusercontent.com/${GITHUB_ORG}/${repo}/HEAD/${normalized}`;
       try {
         return await withRateLimitHint(() =>
-          fetchTextCached(url, { headers: githubHeaders() })
+          fetchText(url, { headers: githubHeaders() })
         );
       } catch (err) {
         if (err instanceof NotFoundError) {

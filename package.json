@@ -1,12 +1,38 @@
 {
-  "name": "agentailor-mcp",
+  "name": "@agentailor/mcp",
   "version": "0.1.0",
   "description": "MCP server for Agentailor — search the blog and read articles and open-source repo docs over the Model Context Protocol.",
   "type": "module",
   "license": "Apache-2.0",
   "main": "dist/index.stdio.js",
+  "bin": {
+    "agentailor-mcp": "dist/index.stdio.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "agentailor",
+    "fastmcp",
+    "ai",
+    "llm"
+  ],
+  "homepage": "https://github.com/agentailor/agentailor-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agentailor/agentailor-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/agentailor/agentailor-mcp/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "pnpm run build",
     "dev:stdio": "tsx watch src/index.stdio.ts",
     "dev:http": "tsx watch src/index.http.ts",
     "start:stdio": "node dist/index.stdio.js",

@@ -1,4 +1,4 @@
-/** Fetch helpers: an in-memory cache and GitHub rate-limit handling. */
+/** Fetch helpers: a text fetch with GitHub rate-limit handling. */
 
 /** Raised when GitHub's rate limit is hit; carries an agent-actionable message. */
 export class RateLimitError extends Error {
@@ -7,10 +7,6 @@ export class RateLimitError extends Error {
     this.name = "RateLimitError";
   }
 }
-
-// Process-lifetime cache. Data is public and changes rarely, so caching keeps
-// us well under GitHub's unauthenticated 60 req/hr/IP budget.
-const cache = new Map<string, string>();
 
 /** Adds an Authorization header only when the user supplied a token. */
 export function githubHeaders(): HeadersInit {
@@ -33,16 +29,13 @@ const RATE_LIMIT_HINT =
   "Set a GITHUB_TOKEN environment variable to raise the limit to 5,000/hour, then retry.";
 
 /**
- * Cached text fetch. On GitHub rate-limit responses, throws a RateLimitError
- * with an actionable message instead of surfacing a raw 403.
+ * Text fetch. On GitHub rate-limit responses, throws a RateLimitError with an
+ * actionable message instead of surfacing a raw 403.
  */
-export async function fetchTextCached(
+export async function fetchText(
   url: string,
   init?: RequestInit
 ): Promise<string> {
-  const cached = cache.get(url);
-  if (cached !== undefined) return cached;
-
   const res = await fetch(url, init);
 
   if (isRateLimited(res)) throw new RateLimitError(RATE_LIMIT_HINT);
@@ -51,9 +44,7 @@ export async function fetchTextCached(
     throw new Error(`Request failed: ${res.status} ${res.statusText}`);
   }
 
-  const text = await res.text();
-  cache.set(url, text);
-  return text;
+  return res.text();
 }
 
 /** Raised on 404 so callers can return a friendly "not found" tool result. */
@@ -62,9 +53,4 @@ export class NotFoundError extends Error {
     super(`Not found: ${url}`);
     this.name = "NotFoundError";
   }
-}
-
-/** Test-only: clear the cache between cases. */
-export function _clearCache(): void {
-  cache.clear();
 }

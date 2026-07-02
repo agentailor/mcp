@@ -1,7 +1,7 @@
 /** Blog post index: typed model + search/filter helpers over llms.json. */
 
 import { LLMS_JSON_URL } from "./config.js";
-import { fetchTextCached } from "./http.js";
+import { fetchText } from "./http.js";
 
 export interface Post {
   title: string;
@@ -18,9 +18,9 @@ interface LlmsJson {
   posts: Post[];
 }
 
-/** Fetches and parses the structured post index (cached). */
+/** Fetches and parses the structured post index. */
 export async function getPosts(): Promise<Post[]> {
-  const raw = await fetchTextCached(LLMS_JSON_URL);
+  const raw = await fetchText(LLMS_JSON_URL);
   const parsed = JSON.parse(raw) as LlmsJson;
   return parsed.posts ?? [];
 }
