@@ -7,7 +7,7 @@ import {
 } from "../config.js";
 import { getPosts, searchPosts } from "../content.js";
 import { formatSearchResults } from "../format.js";
-import { fetchTextCached, NotFoundError } from "../http.js";
+import { fetchText, NotFoundError } from "../http.js";
 import { isBlogArticleUrl } from "../validate.js";
 
 /** Registers the blog content tools on the given server. */
@@ -22,7 +22,7 @@ export function registerBlogTools(server: FastMCP): void {
 - Prefer agentailor_search_articles when the user names a topic — it returns a filtered, ranked shortlist instead of the whole map.`,
     parameters: z.object({}),
     execute: async () => {
-      return await fetchTextCached(BLOG_INDEX_URL);
+      return await fetchText(BLOG_INDEX_URL);
     },
   });
 
@@ -107,7 +107,7 @@ Pass the .md URL from the search results (e.g. https://blog.agentailor.com/posts
         );
       }
       try {
-        return await fetchTextCached(url);
+        return await fetchText(url);
       } catch (err) {
         if (err instanceof NotFoundError) {
           throw new UserError(

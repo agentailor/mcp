@@ -1,10 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  _clearCache,
-  fetchTextCached,
-  NotFoundError,
-  RateLimitError,
-} from "../src/http.js";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { fetchText, NotFoundError, RateLimitError } from "../src/http.js";
 
 function mockResponse(
   body: string,
@@ -16,18 +11,18 @@ function mockResponse(
   });
 }
 
-describe("fetchTextCached", () => {
-  beforeEach(() => _clearCache());
+describe("fetchText", () => {
   afterEach(() => vi.restoreAllMocks());
 
-  it("returns body text on success and caches it", async () => {
+  it("returns body text on success and does not cache", async () => {
+    // Fresh Response per call: a body can only be read once.
     const spy = vi
       .spyOn(globalThis, "fetch")
-      .mockResolvedValue(mockResponse("hello"));
+      .mockImplementation(async () => mockResponse("hello"));
 
-    expect(await fetchTextCached("https://x.test/a")).toBe("hello");
-    expect(await fetchTextCached("https://x.test/a")).toBe("hello");
-    expect(spy).toHaveBeenCalledTimes(1); // second call served from cache
+    expect(await fetchText("https://x.test/a")).toBe("hello");
+    expect(await fetchText("https://x.test/a")).toBe("hello");
+    expect(spy).toHaveBeenCalledTimes(2); // no cache — each call hits the network
   });
 
   it("throws RateLimitError on 403 with x-ratelimit-remaining: 0", async () => {
@@ -37,10 +32,10 @@ describe("fetchTextCached", () => {
         headers: { "x-ratelimit-remaining": "0" },
       })
     );
-    await expect(fetchTextCached("https://x.test/rl")).rejects.toBeInstanceOf(
+    await expect(fetchText("https://x.test/rl")).rejects.toBeInstanceOf(
       RateLimitError
     );
-    await expect(fetchTextCached("https://x.test/rl")).rejects.toThrow(
+    await expect(fetchText("https://x.test/rl")).rejects.toThrow(
       /GITHUB_TOKEN/
     );
   });
@@ -49,7 +44,7 @@ describe("fetchTextCached", () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       mockResponse("slow down", { status: 429 })
     );
-    await expect(fetchTextCached("https://x.test/429")).rejects.toBeInstanceOf(
+    await expect(fetchText("https://x.test/429")).rejects.toBeInstanceOf(
       RateLimitError
     );
   });
@@ -61,7 +56,7 @@ describe("fetchTextCached", () => {
         headers: { "x-ratelimit-remaining": "42" },
       })
     );
-    const err = await fetchTextCached("https://x.test/403").catch((e) => e);
+    const err = await fetchText("https://x.test/403").catch((e) => e);
     expect(err).not.toBeInstanceOf(RateLimitError);
     expect(err).toBeInstanceOf(Error);
   });
@@ -70,7 +65,7 @@ describe("fetchTextCached", () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       mockResponse("nope", { status: 404 })
     );
-    await expect(fetchTextCached("https://x.test/404")).rejects.toBeInstanceOf(
+    await expect(fetchText("https://x.test/404")).rejects.toBeInstanceOf(
       NotFoundError
     );
   });

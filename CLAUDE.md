@@ -8,6 +8,17 @@ Guidance for Claude Code (claude.ai/code) when working in this repository.
 
 **This is a public repository.** Keep it self-contained — do not reference internal or private Agentailor projects in code, comments, README, or commits. Scope is public data only; no credentials are required to run.
 
+### Distribution
+
+Meant to be used **without cloning**. Two first-class paths:
+
+- **npm package `@agentailor/mcp`** — `npx @agentailor/mcp` runs the stdio server (Claude Desktop). The `bin` maps to `dist/index.stdio.js`, which carries a `#!/usr/bin/env node` shebang.
+- **Hosted HTTP** — Agentailor runs the HTTP transport on **Render as a native Node web service** (not Docker): build `pnpm install --frozen-lockfile && pnpm build`, start `pnpm start:http`. `GITHUB_TOKEN` is a Render secret; `PORT` is injected by Render; health check is `/health`. Node 20 pinned via `engines` + `.node-version`.
+
+Clone-and-run is a secondary/contributor path. The `Dockerfile` is for local stdio and self-hosting anywhere — **not** the Render path.
+
+**Releasing:** bump `version` in `package.json` (and `src/server.ts`), commit, then publish a **GitHub Release** — the `.github/workflows/publish.yml` workflow runs the gates and `pnpm publish`es to npm (auth via the `NPM_TOKEN` repo secret). `.github/workflows/ci.yml` runs format/typecheck/test/build on push + PR.
+
 ## Commands
 
 ```bash
@@ -35,8 +46,8 @@ One codebase, two transports, five tools.
 
 Both import the shared server from `src/server.ts` and differ only in the `server.start(...)` call:
 
-- **stdio** — for local clients (Claude Desktop). Run via Docker.
-- **httpStream** — self-hosted; MCP endpoint at `POST /mcp`, plus `GET /health` (enabled in `server.ts`).
+- **stdio** — for local clients (Claude Desktop). Run via `npx @agentailor/mcp` (or Docker). The entrypoint has a `#!/usr/bin/env node` shebang so it works as a `bin`.
+- **httpStream** — hosted/self-hosted; MCP endpoint at `POST /mcp`, plus `GET /health` (enabled in `server.ts`). Reads `PORT` from the environment.
 
 ### Server (`src/server.ts`)
 
@@ -52,7 +63,7 @@ Registered by workflow, not by endpoint. Names are prefixed `agentailor_` to avo
 ### Shared core
 
 - `src/config.ts` — fetch targets (`BLOG_BASE_URL`, `GITHUB_ORG`), safety regexes, and defaults. Env overrides: `BLOG_BASE_URL`, `GITHUB_ORG`, `PORT`, `GITHUB_TOKEN`.
-- `src/http.ts` — `fetchTextCached` (process-lifetime cache), `githubHeaders` (adds `Authorization` only when `GITHUB_TOKEN` is set), and error types: `RateLimitError` (GitHub 403-with-`x-ratelimit-remaining: 0` or 429), `NotFoundError` (404).
+- `src/http.ts` — `fetchText` (plain text fetch, no cache — content is always fresh; rely on `GITHUB_TOKEN` for the API limit), `githubHeaders` (adds `Authorization` only when `GITHUB_TOKEN` is set), and error types: `RateLimitError` (GitHub 403-with-`x-ratelimit-remaining: 0` or 429), `NotFoundError` (404).
 - `src/content.ts` — `Post` model, `getPosts()` (fetches/parses `llms.json`), and the pure `searchPosts(posts, params)` filter (query + tags + guidesOnly).
 - `src/format.ts` — `formatSearchResults` with `concise`/`detailed` shapes and an overflow hint.
 - `src/validate.ts` — pure input validation (`isBlogArticleUrl`, `isSafeRepo`, `normalizeDocPath`). Tools throw `UserError` on invalid input so the message reaches the agent.
@@ -77,7 +88,7 @@ Vitest, offline and deterministic (network is mocked via `vi.spyOn(globalThis, "
 
 ## Docker
 
-One `Dockerfile`, `TRANSPORT` build ARG selects the entrypoint:
+The `Dockerfile` is for local stdio and self-hosting anywhere — **not** the hosted Render deployment (Render uses the native Node runtime). `TRANSPORT` build ARG selects the entrypoint:
 
 ```bash
 docker build -t agentailor-mcp .                            # stdio (default)

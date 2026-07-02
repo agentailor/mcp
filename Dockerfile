@@ -1,6 +1,8 @@
-# Multi-stage build. TRANSPORT selects the entrypoint:
+# Multi-stage build for running the server locally or on any container host.
+# (The hosted deployment on Render uses the native Node runtime, not this image.)
+# TRANSPORT selects the entrypoint:
 #   stdio (default) — local clients (Claude Desktop) via `docker run -i`
-#   http            — self-hosted server on PORT (default 3000)
+#   http            — self-host anywhere on PORT (default 3000)
 ARG TRANSPORT=stdio
 
 FROM node:20-alpine AS builder
