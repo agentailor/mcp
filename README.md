@@ -80,22 +80,22 @@ These tools follow the five principles from Agentailor's [Writing Effective Tool
 
 The HTTP transport serves the MCP endpoint at `POST /mcp` and a `GET /health` check.
 
-### On Render (native Node web service — reference setup)
+### Native Node host
 
-Create a **Web Service** from this repo with the **Node** runtime (not Docker):
+On any platform that runs a Node web service from this repo:
 
 - **Build command:** `pnpm install --frozen-lockfile && pnpm build`
 - **Start command:** `pnpm start:http`
 - **Health check path:** `/health`
 - **Environment:**
   - `GITHUB_TOKEN` — a token with public read access (recommended on a shared/hosted instance; raises the GitHub limit to 5,000/hour).
-  - `PORT` — injected by Render automatically; the server reads it. No need to set it.
+  - `PORT` — most hosts inject this automatically; the server reads it. Defaults to `3000` if unset.
 
 Node 20 is pinned via `engines` and `.node-version`.
 
-### Anywhere else (Docker)
+### Docker
 
-A `Dockerfile` is included for running the server outside Render — locally or on any container host. The `TRANSPORT` build arg selects the entrypoint:
+A `Dockerfile` is included for running the server on any container host. The `TRANSPORT` build arg selects the entrypoint:
 
 ```bash
 docker build --build-arg TRANSPORT=http -t agentailor-mcp-http .
@@ -108,7 +108,7 @@ Connect any HTTP MCP client to `http://<host>:3000/mcp`.
 
 | Variable        | Required | Purpose                                                                                                                                                  |
 | --------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PORT`          | No       | HTTP transport port (default `3000`). Injected by the host on Render. Ignored by stdio.                                                                  |
+| `PORT`          | No       | HTTP transport port (default `3000`). Injected by most hosts. Ignored by stdio.                                                                          |
 | `GITHUB_TOKEN`  | No       | Raises the GitHub API limit for the repo tools from 60/hr to 5,000/hr. Any token with public read access works. Recommended on a hosted/shared instance. |
 | `BLOG_BASE_URL` | No       | Override the blog origin (for local/staging testing).                                                                                                    |
 

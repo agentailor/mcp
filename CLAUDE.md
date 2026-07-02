@@ -13,9 +13,9 @@ Guidance for Claude Code (claude.ai/code) when working in this repository.
 Meant to be used **without cloning**. Two first-class paths:
 
 - **npm package `@agentailor/mcp`** — `npx @agentailor/mcp` runs the stdio server (Claude Desktop). The `bin` maps to `dist/index.stdio.js`, which carries a `#!/usr/bin/env node` shebang.
-- **Hosted HTTP** — Agentailor runs the HTTP transport on **Render as a native Node web service** (not Docker): build `pnpm install --frozen-lockfile && pnpm build`, start `pnpm start:http`. `GITHUB_TOKEN` is a Render secret; `PORT` is injected by Render; health check is `/health`. Node 20 pinned via `engines` + `.node-version`.
+- **Hosted HTTP** — the HTTP transport runs on a native Node host: build `pnpm install --frozen-lockfile && pnpm build`, start `pnpm start:http`. `GITHUB_TOKEN` is set as a secret; `PORT` is injected by the host; health check is `/health`. Node 20 pinned via `engines` + `.node-version`.
 
-Clone-and-run is a secondary/contributor path. The `Dockerfile` is for local stdio and self-hosting anywhere — **not** the Render path.
+Clone-and-run is a secondary/contributor path. The `Dockerfile` is for local stdio and self-hosting anywhere.
 
 **Releasing:** bump `version` in `package.json` (and `src/server.ts`), commit, then publish a **GitHub Release** — the `.github/workflows/publish.yml` workflow runs the gates and `pnpm publish`es to npm (auth via the `NPM_TOKEN` repo secret). `.github/workflows/ci.yml` runs format/typecheck/test/build on push + PR.
 
@@ -88,7 +88,7 @@ Vitest, offline and deterministic (network is mocked via `vi.spyOn(globalThis, "
 
 ## Docker
 
-The `Dockerfile` is for local stdio and self-hosting anywhere — **not** the hosted Render deployment (Render uses the native Node runtime). `TRANSPORT` build ARG selects the entrypoint:
+The `Dockerfile` is for local stdio and self-hosting anywhere. `TRANSPORT` build ARG selects the entrypoint:
 
 ```bash
 docker build -t agentailor-mcp .                            # stdio (default)
