@@ -12,7 +12,7 @@ Guidance for Claude Code (claude.ai/code) when working in this repository.
 
 Meant to be used **without cloning**.
 
-- **npm package `@agentailor/mcp`** (live) — `npx @agentailor/mcp` runs the stdio server (Claude Desktop). The `bin` maps to `dist/index.stdio.js`, which carries a `#!/usr/bin/env node` shebang.
+- **npm package `@agentailor/mcp`** (live) — `npx -y @agentailor/mcp` runs the stdio server, so any MCP client can launch it (Claude Desktop, Cursor, VS Code/Copilot, Codex, and others — the README has per-client config). The `bin` maps to `dist/index.stdio.js`, which carries a `#!/usr/bin/env node` shebang.
 - **Hosted HTTP** (planned, not live yet — presented as "coming soon" in the README) — the HTTP transport runs on a native Node host: build `pnpm install --frozen-lockfile && pnpm build`, start `pnpm start:http`. `GITHUB_TOKEN` is set as a secret; `PORT` is injected by the host; health check is `/health`. Node 20 pinned via `engines` + `.node-version`. Self-hosters can run this today; the _Agentailor-hosted_ endpoint is not yet published.
 
 Clone-and-run is a secondary/contributor path. The `Dockerfile` is for local stdio and self-hosting anywhere.

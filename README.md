@@ -23,9 +23,14 @@ Scope is Agentailor's public content: the blog and the open-source org repos. Th
 
 ## Use it
 
-### npx (local stdio)
+### Connect your client (local stdio via npx)
 
-Run the server as a local command — ideal for Claude Desktop. In `claude_desktop_config.json`:
+The server runs as a local stdio command — `npx -y @agentailor/mcp` — so any MCP client can launch it. Add the config for your client below. No install step; `npx` fetches the package on first run.
+
+<details open>
+<summary><strong>Claude Desktop</strong></summary>
+
+In `claude_desktop_config.json` (Settings › Developer › Edit Config), then restart Claude Desktop:
 
 ```json
 {
@@ -38,7 +43,73 @@ Run the server as a local command — ideal for Claude Desktop. In `claude_deskt
 }
 ```
 
-The repo tools read **public** GitHub data, so no token is required. If you hit GitHub's unauthenticated rate limit (60 requests/hour), pass a token to raise it to 5,000/hour:
+</details>
+
+<details>
+<summary><strong>Cursor</strong></summary>
+
+Same schema as Claude. Create `.cursor/mcp.json` in your project (or `~/.cursor/mcp.json` for all projects):
+
+```json
+{
+  "mcpServers": {
+    "agentailor": {
+      "command": "npx",
+      "args": ["-y", "@agentailor/mcp"]
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><strong>VS Code / GitHub Copilot</strong></summary>
+
+Create `.vscode/mcp.json` in your workspace. Note the top-level key is `servers` (not `mcpServers`):
+
+```json
+{
+  "servers": {
+    "agentailor": {
+      "command": "npx",
+      "args": ["-y", "@agentailor/mcp"]
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><strong>OpenAI Codex</strong></summary>
+
+Add to `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.agentailor]
+command = "npx"
+args = ["-y", "@agentailor/mcp"]
+```
+
+Or use the CLI: `codex mcp add agentailor -- npx -y @agentailor/mcp`.
+
+</details>
+
+<details>
+<summary><strong>Any other MCP client</strong></summary>
+
+Run it as a stdio server with this command:
+
+```
+npx -y @agentailor/mcp
+```
+
+</details>
+
+#### Raising the GitHub rate limit (optional)
+
+The repo tools read **public** GitHub data, so no token is required. If you hit GitHub's unauthenticated rate limit (60 requests/hour), set a `GITHUB_TOKEN` (any token with public read access) to raise it to 5,000/hour. In a JSON config, add an `env` block to the server entry:
 
 ```json
 {
@@ -51,6 +122,8 @@ The repo tools read **public** GitHub data, so no token is required. If you hit 
   }
 }
 ```
+
+For Codex, add it under the server's `env` in `config.toml`; for VS Code, add it under the `servers` entry.
 
 ### Hosted HTTP (coming soon)
 
