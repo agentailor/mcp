@@ -10,10 +10,10 @@ Guidance for Claude Code (claude.ai/code) when working in this repository.
 
 ### Distribution
 
-Meant to be used **without cloning**. Two first-class paths:
+Meant to be used **without cloning**.
 
-- **npm package `@agentailor/mcp`** — `npx @agentailor/mcp` runs the stdio server (Claude Desktop). The `bin` maps to `dist/index.stdio.js`, which carries a `#!/usr/bin/env node` shebang.
-- **Hosted HTTP** — the HTTP transport runs on a native Node host: build `pnpm install --frozen-lockfile && pnpm build`, start `pnpm start:http`. `GITHUB_TOKEN` is set as a secret; `PORT` is injected by the host; health check is `/health`. Node 20 pinned via `engines` + `.node-version`.
+- **npm package `@agentailor/mcp`** (live) — `npx @agentailor/mcp` runs the stdio server (Claude Desktop). The `bin` maps to `dist/index.stdio.js`, which carries a `#!/usr/bin/env node` shebang.
+- **Hosted HTTP** (planned, not live yet — presented as "coming soon" in the README) — the HTTP transport runs on a native Node host: build `pnpm install --frozen-lockfile && pnpm build`, start `pnpm start:http`. `GITHUB_TOKEN` is set as a secret; `PORT` is injected by the host; health check is `/health`. Node 20 pinned via `engines` + `.node-version`. Self-hosters can run this today; the _Agentailor-hosted_ endpoint is not yet published.
 
 Clone-and-run is a secondary/contributor path. The `Dockerfile` is for local stdio and self-hosting anywhere.
 
@@ -60,12 +60,21 @@ Registered by workflow, not by endpoint. Names are prefixed `agentailor_` to avo
 - `src/tools/blog.ts` — `agentailor_get_blog_index`, `agentailor_search_articles`, `agentailor_read_article`
 - `src/tools/repos.ts` — `agentailor_list_repos`, `agentailor_read_repo_doc`
 
+**Response contract (JSON vs text), decided per-tool by what the consumer needs:**
+
+- **List/search tools return JSON** (stringified typed objects): `agentailor_search_articles` → `{ results, total, shown, hint? }`; `agentailor_list_repos` → `{ repos }`. The agent parses fields — the `.md` URL and repo `name` feed the next tool call — so structure beats a string it would have to scrape. `response_format` selects _which fields_ appear (concise = fewer keys).
+- **Content tools return raw Markdown/text**: `agentailor_read_article`, `agentailor_read_repo_doc`, `agentailor_get_blog_index`. The payload _is_ the thing the agent reads; wrapping it in JSON would only add tokens.
+
+This is the reasoning behind the guide's "structured, semantic responses" principle — applied deliberately, not by wrapping everything.
+
+**ASCII-only in tool descriptions and outputs.** No decorative unicode (`->`, em dashes, stars) in tool descriptions or tool-facing strings — keep them plain ASCII for broad client/terminal compatibility.
+
 ### Shared core
 
 - `src/config.ts` — fetch targets (`BLOG_BASE_URL`, `GITHUB_ORG`), safety regexes, and defaults. Env overrides: `BLOG_BASE_URL`, `GITHUB_ORG`, `PORT`, `GITHUB_TOKEN`.
 - `src/http.ts` — `fetchText` (plain text fetch, no cache — content is always fresh; rely on `GITHUB_TOKEN` for the API limit), `githubHeaders` (adds `Authorization` only when `GITHUB_TOKEN` is set), and error types: `RateLimitError` (GitHub 403-with-`x-ratelimit-remaining: 0` or 429), `NotFoundError` (404).
 - `src/content.ts` — `Post` model, `getPosts()` (fetches/parses `llms.json`), and the pure `searchPosts(posts, params)` filter (query + tags + guidesOnly).
-- `src/format.ts` — `formatSearchResults` with `concise`/`detailed` shapes and an overflow hint.
+- `src/format.ts` — `buildSearchResponse` returns the typed search envelope `{ results, total, shown, hint? }` (pure), with `concise`/`detailed` field selection and an overflow hint.
 - `src/validate.ts` — pure input validation (`isBlogArticleUrl`, `isSafeRepo`, `normalizeDocPath`). Tools throw `UserError` on invalid input so the message reaches the agent.
 
 ### Data source

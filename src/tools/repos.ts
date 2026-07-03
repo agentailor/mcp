@@ -21,18 +21,20 @@ interface Repo {
 export function registerRepoTools(server: FastMCP): void {
   server.addTool({
     name: "agentailor_list_repos",
-    description: `Lists the public open-source repositories in the ${GITHUB_ORG} GitHub org, with names, descriptions, topics, stars, and URLs.
+    description: `Lists the public open-source repositories in the ${GITHUB_ORG} GitHub org as JSON, with names, descriptions, topics, stars, and URLs.
 
 **When to use:**
 - "What open-source tools does Agentailor have?"
 - "Do you have a starter/template for MCP?"
-- To find a repo before reading its docs with agentailor_read_repo_doc.`,
+- To find a repo before reading its docs with agentailor_read_repo_doc.
+
+Returns JSON: { repos }. Use a repo's "name" to read its docs with agentailor_read_repo_doc.`,
     parameters: z.object({
       response_format: z
         .enum(["concise", "detailed"])
         .optional()
         .describe(
-          'Output verbosity. "concise" (default) is name + description; "detailed" adds topics and star counts.'
+          'Output verbosity. "concise" (default) returns name, description, and url; "detailed" adds topics and stars.'
         ),
     }),
     execute: async ({ response_format }) => {
@@ -44,14 +46,16 @@ export function registerRepoTools(server: FastMCP): void {
       );
       const repos = JSON.parse(raw) as Repo[];
       const detailed = response_format === "detailed";
-      return repos
-        .map((r) => {
-          const desc = r.description ?? "No description";
-          if (!detailed) return `- ${r.name}: ${desc} — ${r.html_url}`;
-          const topics = r.topics?.length ? ` [${r.topics.join(", ")}]` : "";
-          return `- ${r.name}${topics} (★${r.stargazers_count}): ${desc} — ${r.html_url}`;
-        })
-        .join("\n");
+      const result = repos.map((r) => {
+        const base = {
+          name: r.name,
+          description: r.description ?? null,
+          url: r.html_url,
+        };
+        if (!detailed) return base;
+        return { ...base, topics: r.topics ?? [], stars: r.stargazers_count };
+      });
+      return JSON.stringify({ repos: result }, null, 2);
     },
   });
 
@@ -60,8 +64,8 @@ export function registerRepoTools(server: FastMCP): void {
     description: `Fetches a Markdown doc (the README, or a file under docs/) from a public ${GITHUB_ORG} repo.
 
 **When to use:**
-- The user asks how to use a specific repo, or about its architecture → read its README first.
-- The user asks about a specific documented topic → read the matching docs/*.md file.
+- The user asks how to use a specific repo, or about its architecture: read its README first.
+- The user asks about a specific documented topic: read the matching docs/*.md file.
 
 Only README.md and docs/*.md paths are allowed.`,
     parameters: z.object({

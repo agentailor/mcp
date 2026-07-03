@@ -8,7 +8,7 @@ export const BLOG_BASE_URL = (
 /** Structured, machine-readable post index. */
 export const LLMS_JSON_URL = `${BLOG_BASE_URL}/llms.json`;
 
-/** Corpus map (llms-full.txt) — the "what exists" index. */
+/** Corpus map (llms-full.txt): the "what exists" index. */
 export const BLOG_INDEX_URL = `${BLOG_BASE_URL}/llms-full.txt`;
 
 /** Public GitHub org whose repos are exposed. */

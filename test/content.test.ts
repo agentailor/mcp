@@ -26,6 +26,26 @@ describe("searchPosts", () => {
     expect(byTitle.map((p) => p.slug)).toContain("agent-development-roadmap");
   });
 
+  it("matches multiple query terms with OR and ranks by match count", () => {
+    // No article contains the contiguous phrase "agents tools", but several
+    // contain one or both terms. Old phrase-matching returned nothing here.
+    const res = searchPosts(posts, { query: "agents tools" });
+    expect(res.length).toBeGreaterThan(0);
+    // "writing-tools-for-ai-agents" matches both terms -> ranked first.
+    expect(res[0].slug).toBe("writing-tools-for-ai-agents");
+  });
+
+  it("degrades gracefully when only some terms match", () => {
+    // "roadmap" hits one post; "nonexistentterm" hits none. Still returns the
+    // roadmap post instead of a silent empty.
+    const res = searchPosts(posts, { query: "roadmap nonexistentterm" });
+    expect(res.map((p) => p.slug)).toContain("agent-development-roadmap");
+  });
+
+  it("returns empty only when no term matches anything", () => {
+    expect(searchPosts(posts, { query: "zzz qqq" })).toHaveLength(0);
+  });
+
   it("is case- and format-insensitive for tags", () => {
     const a = searchPosts(posts, { tags: ["mcp server"] });
     const b = searchPosts(posts, { tags: ["mcp-server"] });

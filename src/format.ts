@@ -1,46 +1,72 @@
-/** Response formatting: concise vs detailed shapes for search results. */
+/** Search-response shaping: concise vs detailed article records + envelope. */
 
 import type { ResponseFormat } from "./config.js";
 import type { Post } from "./content.js";
 
-/** One search hit, rendered per the requested verbosity. */
-function formatPost(post: Post, format: ResponseFormat): string {
-  const badge = post.guide ? " [Guide]" : "";
-  if (format === "concise") {
-    return `- ${post.title}${badge} — ${post.url}`;
-  }
-  const tags = post.tags.length ? ` (${post.tags.join(", ")})` : "";
-  return [
-    `### ${post.title}${badge}`,
-    `${post.url}`,
-    `${post.date}${tags}`,
-    post.summary,
-  ].join("\n");
+/** A single article result. Detailed adds date, tags, and summary. */
+export interface ArticleResult {
+  title: string;
+  url: string;
+  guide: boolean;
+  date?: string;
+  tags?: string[];
+  summary?: string;
+}
+
+/** The JSON envelope returned by agentailor_search_articles. */
+export interface SearchResponse {
+  results: ArticleResult[];
+  total: number;
+  shown: number;
+  hint?: string;
+}
+
+/** Projects a post to a result record per the requested verbosity. */
+function toResult(post: Post, format: ResponseFormat): ArticleResult {
+  const base: ArticleResult = {
+    title: post.title,
+    url: post.url,
+    guide: post.guide,
+  };
+  if (format === "concise") return base;
+  return {
+    ...base,
+    date: post.date,
+    tags: post.tags,
+    summary: post.summary,
+  };
 }
 
 /**
- * Renders a search result set. `total` is the pre-truncation count so an
- * overflow hint can steer the agent toward a narrower query.
+ * Builds the search-response envelope. `total` is the pre-truncation count so
+ * an overflow hint can steer the agent toward a narrower query.
  */
-export function formatSearchResults(
+export function buildSearchResponse(
   results: Post[],
   total: number,
   limit: number,
   format: ResponseFormat
-): string {
+): SearchResponse {
   if (results.length === 0) {
-    return "No matching articles. Try a broader query, fewer tags, or drop guidesOnly.";
+    return {
+      results: [],
+      total: 0,
+      shown: 0,
+      hint: "No matching articles. Try a broader query, fewer tags, or drop guidesOnly.",
+    };
   }
 
-  const sep = format === "concise" ? "\n" : "\n\n";
-  const body = results.map((p) => formatPost(p, format)).join(sep);
+  const response: SearchResponse = {
+    results: results.map((p) => toResult(p, format)),
+    total,
+    shown: results.length,
+  };
 
   if (total > results.length) {
-    const hint =
-      `\n\nShowing ${results.length} of ${total} matches. ` +
+    response.hint =
+      `Showing ${results.length} of ${total} matches. ` +
       `Narrow with a more specific query, tags, or guidesOnly to see the most relevant ones ` +
       `(or raise limit up to ${total}).`;
-    return body + hint;
   }
-  return body;
+  return response;
 }

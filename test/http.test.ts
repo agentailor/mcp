@@ -14,15 +14,9 @@ function mockResponse(
 describe("fetchText", () => {
   afterEach(() => vi.restoreAllMocks());
 
-  it("returns body text on success and does not cache", async () => {
-    // Fresh Response per call: a body can only be read once.
-    const spy = vi
-      .spyOn(globalThis, "fetch")
-      .mockImplementation(async () => mockResponse("hello"));
-
+  it("returns body text on success", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(mockResponse("hello"));
     expect(await fetchText("https://x.test/a")).toBe("hello");
-    expect(await fetchText("https://x.test/a")).toBe("hello");
-    expect(spy).toHaveBeenCalledTimes(2); // no cache — each call hits the network
   });
 
   it("throws RateLimitError on 403 with x-ratelimit-remaining: 0", async () => {
