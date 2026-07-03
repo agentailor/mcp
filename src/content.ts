@@ -36,13 +36,23 @@ function norm(s: string): string {
   return s.toLowerCase().replace(/[\s_-]+/g, "");
 }
 
-function matchesQuery(post: Post, query: string): boolean {
-  const q = query.toLowerCase();
+/** Splits a query into lowercased terms, dropping empties. */
+function queryTerms(query: string): string[] {
+  return query.toLowerCase().split(/\s+/).filter(Boolean);
+}
+
+/** True when a single term appears in the post's title, summary, or any tag. */
+function termMatches(post: Post, term: string): boolean {
   return (
-    post.title.toLowerCase().includes(q) ||
-    post.summary.toLowerCase().includes(q) ||
-    post.tags.some((t) => t.toLowerCase().includes(q))
+    post.title.toLowerCase().includes(term) ||
+    post.summary.toLowerCase().includes(term) ||
+    post.tags.some((t) => t.toLowerCase().includes(term))
   );
+}
+
+/** How many of the given terms match the post (OR semantics, ranking signal). */
+function countMatchedTerms(post: Post, terms: string[]): number {
+  return terms.reduce((n, term) => n + (termMatches(post, term) ? 1 : 0), 0);
 }
 
 function matchesTags(post: Post, tags: string[]): boolean {
@@ -51,16 +61,28 @@ function matchesTags(post: Post, tags: string[]): boolean {
 }
 
 /**
- * Filters posts by free-text query, tag membership, and/or guides-only.
- * Empty params return the full (date-desc) index. Results are already sorted
- * newest-first as emitted by the blog.
+ * Filters posts by tag membership (AND), guides-only, and a free-text query.
+ * The query is split into terms; a post matches if it contains ANY term, and
+ * results are ranked by how many terms match (then newest-first). Without a
+ * query, order is unchanged (date-desc, as emitted by the blog).
  */
 export function searchPosts(posts: Post[], params: SearchParams): Post[] {
   const { query, tags, guidesOnly } = params;
-  return posts.filter((post) => {
+
+  const filtered = posts.filter((post) => {
     if (guidesOnly && !post.guide) return false;
     if (tags && tags.length > 0 && !matchesTags(post, tags)) return false;
-    if (query && query.trim() && !matchesQuery(post, query)) return false;
     return true;
   });
+
+  const terms = query ? queryTerms(query) : [];
+  if (terms.length === 0) return filtered;
+
+  // Keep posts matching at least one term, then stable-sort by match count
+  // desc. Input is already newest-first, so ties preserve date-desc order.
+  return filtered
+    .map((post) => ({ post, score: countMatchedTerms(post, terms) }))
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map(({ post }) => post);
 }

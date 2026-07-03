@@ -1,6 +1,6 @@
 {
   "name": "@agentailor/mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MCP server for Agentailor — search the blog and read articles and open-source repo docs over the Model Context Protocol.",
   "type": "module",
   "license": "Apache-2.0",
@@ -19,13 +19,13 @@
     "ai",
     "llm"
   ],
-  "homepage": "https://github.com/agentailor/agentailor-mcp#readme",
+  "homepage": "https://github.com/agentailor/mcp#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/agentailor/agentailor-mcp.git"
+    "url": "git+https://github.com/agentailor/mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/agentailor/agentailor-mcp/issues"
+    "url": "https://github.com/agentailor/mcp/issues"
   },
   "publishConfig": {
     "access": "public"

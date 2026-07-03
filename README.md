@@ -2,38 +2,26 @@
 
 An MCP server that connects your AI assistant to [Agentailor](https://agentailor.com) — search the blog, read articles in full, and pull docs from the open-source repos, all over the Model Context Protocol.
 
-Two ways to use it, no clone required:
+Use it with no clone required:
 
-- **Hosted HTTP** — point your client at Agentailor's endpoint. Zero install.
 - **npx (local stdio)** — run `npx @agentailor/mcp` as a command in Claude Desktop and other local clients.
+- **Hosted HTTP** _(coming soon)_ — a zero-install Agentailor-hosted endpoint you point your client at.
 
 Scaffolded with [`@agentailor/create-mcp-server`](https://www.npmjs.com/package/@agentailor/create-mcp-server) on [FastMCP](https://github.com/punkpeye/fastmcp) — the tool building its own ecosystem.
 
 ## Tools
 
-| Tool                         | What it does                                                                                                   |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `agentailor_get_blog_index`  | Returns the blog's content map — every published article with title, date, tags, summary.                      |
-| `agentailor_search_articles` | Ranked article search in one tool: free-text `query`, `tags` filter, `guidesOnly`, `limit`, `response_format`. |
-| `agentailor_read_article`    | Fetches a single article's full Markdown by its `blog.agentailor.com` `.md` URL.                               |
-| `agentailor_list_repos`      | Lists the public repos in the `agentailor` GitHub org.                                                         |
-| `agentailor_read_repo_doc`   | Reads a `README.md` or `docs/*.md` from a given org repo.                                                      |
+| Tool                         | What it does                                                                                                                 |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `agentailor_get_blog_index`  | Returns the blog's content map (Markdown) — every published article with title, date, tags, summary.                         |
+| `agentailor_search_articles` | Ranked article search in one tool: free-text `query`, `tags` filter, `guidesOnly`, `limit`, `response_format`. Returns JSON. |
+| `agentailor_read_article`    | Fetches a single article's full Markdown by its `blog.agentailor.com` `.md` URL.                                             |
+| `agentailor_list_repos`      | Lists the public repos in the `agentailor` GitHub org. Returns JSON.                                                         |
+| `agentailor_read_repo_doc`   | Reads a `README.md` or `docs/*.md` from a given org repo (Markdown).                                                         |
 
-Scope is Agentailor's public content: the blog and the open-source org repos.
+Scope is Agentailor's public content: the blog and the open-source org repos. The list/search tools (`search_articles`, `list_repos`) return structured JSON; the content tools return raw Markdown.
 
 ## Use it
-
-### Hosted (no install)
-
-Point any HTTP MCP client at Agentailor's hosted endpoint:
-
-```
-https://<agentailor-mcp-host>/mcp
-```
-
-For a client that speaks streamable HTTP, that URL is all you need. Nothing to install or run.
-
-> The final hosted URL is published on [agentailor.com](https://agentailor.com).
 
 ### npx (local stdio)
 
@@ -63,6 +51,10 @@ The repo tools read **public** GitHub data, so no token is required. If you hit 
   }
 }
 ```
+
+### Hosted HTTP (coming soon)
+
+A zero-install, Agentailor-hosted HTTP endpoint is planned — point any streamable-HTTP MCP client at a single URL, nothing to install or run. It isn't live yet; for now use the npx setup above. The endpoint URL will be published on [agentailor.com](https://agentailor.com) when it's ready.
 
 ## Designed to the "Writing Effective Tools for AI Agents" playbook
 
