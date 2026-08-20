@@ -46,6 +46,32 @@ In `claude_desktop_config.json` (Settings › Developer › Edit Config), then r
 </details>
 
 <details>
+<summary><strong>Claude Code</strong></summary>
+
+Add it with the CLI (`--scope user` makes it available in every project; drop the flag to scope it to the current one):
+
+```bash
+claude mcp add agentailor --scope user -- npx -y @agentailor/mcp
+```
+
+Or check a `.mcp.json` into your project root to share it with the team:
+
+```json
+{
+  "mcpServers": {
+    "agentailor": {
+      "command": "npx",
+      "args": ["-y", "@agentailor/mcp"]
+    }
+  }
+}
+```
+
+Verify with `claude mcp list`, or run `/mcp` inside Claude Code.
+
+</details>
+
+<details>
 <summary><strong>Cursor</strong></summary>
 
 Same schema as Claude. Create `.cursor/mcp.json` in your project (or `~/.cursor/mcp.json` for all projects):
