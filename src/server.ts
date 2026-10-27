@@ -4,7 +4,7 @@ import { registerRepoTools } from "./tools/repos.js";
 
 const server = new FastMCP({
   name: "agentailor-mcp",
-  version: "0.2.0",
+  version: "0.2.1",
   // GET /health returns "ok" on the HTTP transport (ignored by stdio).
   health: { enabled: true },
 });
