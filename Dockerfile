@@ -4,7 +4,7 @@
 #   http            — self-host anywhere on PORT (default 3000)
 ARG TRANSPORT=stdio
 
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ RUN pnpm run build
 RUN pnpm prune --prod
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:24-alpine AS production
 
 ARG TRANSPORT
 ENV TRANSPORT=${TRANSPORT}
