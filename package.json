@@ -1,6 +1,6 @@
 {
   "name": "@agentailor/mcp",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "MCP server for Agentailor — search the blog and read articles and open-source repo docs over the Model Context Protocol.",
   "type": "module",
   "license": "Apache-2.0",
