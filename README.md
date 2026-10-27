@@ -182,7 +182,7 @@ On any platform that runs a Node web service from this repo:
   - `GITHUB_TOKEN` — a token with public read access (recommended on a shared/hosted instance; raises the GitHub limit to 5,000/hour).
   - `PORT` — most hosts inject this automatically; the server reads it. Defaults to `3000` if unset.
 
-Node 20 is pinned via `engines` and `.node-version`.
+Node 24 is pinned via `.nvmrc` (`engines` requires `>=22`).
 
 ### Docker
 
